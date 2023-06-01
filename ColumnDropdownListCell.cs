@@ -1,0 +1,91 @@
+﻿/*****************************************************************************
+ * 
+ * ReoGrid - .NET Spreadsheet Control
+ * 
+ * https://reogrid.net/
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * Author: Jingwood <jingwood at unvell.com>
+ *
+ * Copyright (c) 2012-2023 Jingwood <jingwood at unvell.com>
+ * Copyright (c) 2012-2023 unvell inc. All rights reserved.
+ * 
+ ****************************************************************************/
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
+using System.Windows.Controls;
+
+#if WINFORM
+using System.Windows.Forms;
+using RGFloat = System.Single;
+using RGImage = System.Drawing.Image;
+#else
+using RGFloat = System.Double;
+using RGImage = System.Windows.Media.ImageSource;
+#endif // WINFORM
+
+namespace unvell.ReoGrid.CellTypes
+{
+#if WPF
+
+	/// <summary>
+	/// Represents dropdown list cell for entire column.
+	/// </summary>
+	public class ColumnDropdownListCell : DropdownCell
+	{
+		/// <summary>
+		/// Listbox component instance.
+		/// </summary>
+		protected static ListBox listBox;
+
+		/// <summary>
+		/// Push down the dropdown panel.
+		/// </summary>
+		public override void PushDown()
+		{
+			if (ColumnDropdownListCell.listBox == null)
+			{
+				ColumnDropdownListCell.listBox = new ListBox
+				{
+					
+				};
+
+				base.DropdownControl = ColumnDropdownListCell.listBox;
+                base.DropdownPanelHeight = listBox.Items.Count * 20;
+            }
+
+			ColumnDropdownListCell.listBox.SelectionChanged += listBox_Click;
+
+			base.PushDown();
+		}
+
+		/// <summary>
+		/// Push up the dropdown panel.
+		/// </summary>
+		public override void PullUp()
+		{
+			if (ColumnDropdownListCell.listBox != null)
+			{
+				ColumnDropdownListCell.listBox.SelectionChanged -= listBox_Click;
+			}
+
+			base.PullUp();
+		}
+
+		void listBox_Click(object sender, EventArgs e)
+		{
+			base.Cell.Data = ColumnDropdownListCell.listBox.SelectedItem;
+
+			this.PullUp();
+		}
+	}
+#endif // WINFORM
+
+}
